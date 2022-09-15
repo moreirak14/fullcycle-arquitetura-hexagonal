@@ -3,6 +3,7 @@ package application
 import (
 	"errors"
 	"github.com/asaskevich/govalidator"
+	uuid "github.com/satori/go.uuid"
 )
 
 func init() {
@@ -37,6 +38,14 @@ type ProductWriter interface {
 type ProductPersistenceInterface interface {
 	ProductReader
 	ProductWriter
+}
+
+func NewProduct() *Product {
+	product := Product{
+		ID:     uuid.NewV4().String(),
+		Status: DISABLED,
+	}
+	return &product
 }
 
 type Product struct {
