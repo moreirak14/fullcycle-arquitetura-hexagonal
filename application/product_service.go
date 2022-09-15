@@ -21,11 +21,23 @@ func (s *ProductService) Create(name string, price float64) (ProductInterface, e
 	if err != nil {
 		return &Product{}, err
 	}
-	result, err := s.Persistence.Save(product)
 
+	result, err := s.Persistence.Save(product)
 	if err != nil {
 		return &Product{}, err
 	}
 	return result, nil
+}
 
+func (s *ProductService) Enable(product ProductInterface) (ProductInterface, error) {
+	err := product.Enable()
+	if err != nil {
+		return &Product{}, err
+	}
+
+	result, err := s.Persistence.Save(product)
+	if err != nil {
+		return &Product{}, err
+	}
+	return result, nil
 }
