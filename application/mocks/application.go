@@ -63,10 +63,10 @@ func (mr *MockProductInterfaceMockRecorder) Enable() *gomock.Call {
 }
 
 // GetID mocks base method.
-func (m *MockProductInterface) GetID() error {
+func (m *MockProductInterface) GetID() string {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetID")
-	ret0, _ := ret[0].(error)
+	ret0, _ := ret[0].(string)
 	return ret0
 }
 
