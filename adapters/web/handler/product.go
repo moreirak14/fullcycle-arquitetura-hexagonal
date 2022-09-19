@@ -13,9 +13,10 @@ func MakeProductHandlers(
 	router *mux.Router,
 	n *negroni.Negroni,
 	service application.ProductServiceInterface) {
-
 	router.Handle("/product/{id}", n.With(negroni.Wrap(getProduct(service)))).Methods("GET", "OPTIONS")
 	router.Handle("/product/", n.With(negroni.Wrap(createProduct(service)))).Methods("POST", "OPTIONS")
+	router.Handle("/product/{id}", n.With(negroni.Wrap(enableProduct(service)))).Methods("GET", "OPTIONS")
+	router.Handle("/product/{id}", n.With(negroni.Wrap(disableProduct(service)))).Methods("GET", "OPTIONS")
 }
 
 func getProduct(service application.ProductServiceInterface) http.Handler {
@@ -58,6 +59,54 @@ func createProduct(service application.ProductServiceInterface) http.Handler {
 		if err != nil {
 			writer.WriteHeader(http.StatusInternalServerError)
 			writer.Write(jsonError(err.Error()))
+			return
+		}
+	})
+}
+
+func enableProduct(service application.ProductServiceInterface) http.Handler {
+	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		writer.Header().Set("Content-Type", "application/json")
+		vars := mux.Vars(request)
+		id := vars["id"]
+		product, err := service.Get(id)
+		if err != nil {
+			writer.WriteHeader(http.StatusNotFound)
+			return
+		}
+		result, err := service.Enable(product)
+		if err != nil {
+			writer.WriteHeader(http.StatusInternalServerError)
+			writer.Write(jsonError(err.Error()))
+			return
+		}
+		err = json.NewEncoder(writer).Encode(result)
+		if err != nil {
+			writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	})
+}
+
+func disableProduct(service application.ProductServiceInterface) http.Handler {
+	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		writer.Header().Set("Content-Type", "application/json")
+		vars := mux.Vars(request)
+		id := vars["id"]
+		product, err := service.Get(id)
+		if err != nil {
+			writer.WriteHeader(http.StatusNotFound)
+			return
+		}
+		result, err := service.Disable(product)
+		if err != nil {
+			writer.WriteHeader(http.StatusInternalServerError)
+			writer.Write(jsonError(err.Error()))
+			return
+		}
+		err = json.NewEncoder(writer).Encode(result)
+		if err != nil {
+			writer.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 	})
